@@ -10,5 +10,7 @@ namespace ApiLoteria
         }
 
         public DbSet<Rifa> Rifas { get; set; }
+
+        public DbSet<Participante> Participantes { get; set; }
     }
 }
