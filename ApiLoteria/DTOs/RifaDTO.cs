@@ -1,17 +1,16 @@
-﻿using ApiLoteria.Validaciones;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using ApiLoteria.Validaciones;
 
-namespace ApiLoteria.Entidades
+namespace ApiLoteria.DTOs
 {
-    public class Rifa
+    public class RifaDTO
     {
-        public int Id { get; set; }
-
         [Required(ErrorMessage = "El campo {0} es requerido")] //
         [StringLength(maximumLength: 150, ErrorMessage = "El campo {0} solo puede tener hasta 150 caracteres")]
         [PrimeraLetraMayuscula]
+
         public string Nombre { get; set; }
 
-        public List<Participante> participantes { get; set; }
+
     }
 }

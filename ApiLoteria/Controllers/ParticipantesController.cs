@@ -16,11 +16,12 @@ namespace ApiLoteria.Controllers
         }
 
         [HttpGet]
+        [HttpGet("/listadoParticipantes")]
         public async Task<ActionResult<List<Participante>>> GetAll()
         {
             return await dbContext.Participantes.ToListAsync();
-
         }
+
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Participante>> GetById(int id)
@@ -45,6 +46,27 @@ namespace ApiLoteria.Controllers
             return Ok();
         }
 
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(Participante participante, int id)
+        {
+            var exist = await dbContext.Participantes.AnyAsync(x => x.Id == id);
+
+            if (!exist)
+            {
+                return NotFound(" El participante especificado no existe. ");
+            }
+
+            if (participante.Id != id)
+            {
+                return BadRequest("El id del participante no coincide con el establecido en la url. ");
+            }
+
+            dbContext.Update(participante);
+            await dbContext.SaveChangesAsync();
+            return Ok();
+
+        }
+
         [HttpDelete("{id:int}")]
 
         public async Task<ActionResult> Delete(int id)
@@ -63,8 +85,6 @@ namespace ApiLoteria.Controllers
             return Ok();
 
         }
-
-
 
     }
 }
