@@ -12,6 +12,10 @@ namespace ApiLoteria.Entidades
         [PrimeraLetraMayuscula]
         public string Nombre { get; set; }
 
-        public List<Participante> participantes { get; set; }
+        [Required]
+        public int NumPrem { get; set; }
+
+        public List<RPCP> RPCP { get; set; } 
+
     }
 }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ApiLoteria.DTOs
 {
-    public class GetRifaDTO
+    public class CartaDTO
     {
         public int Id { get; set; }
 

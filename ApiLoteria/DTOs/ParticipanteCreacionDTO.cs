@@ -1,12 +1,10 @@
-﻿using ApiLoteria.Validaciones;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using ApiLoteria.Validaciones;
 
-namespace ApiLoteria.Entidades
+namespace ApiLoteria.DTOs
 {
-    public class Participante
+    public class ParticipanteCreacionDTO
     {
-        public int Id { get; set; }
-
         [Required(ErrorMessage = "El campo {0} es requerido")] //
         [StringLength(maximumLength: 150, ErrorMessage = "El campo {0} solo puede tener hasta 150 caracteres")]
         [PrimeraLetraMayuscula]
@@ -17,10 +15,10 @@ namespace ApiLoteria.Entidades
         [PrimeraLetraMayuscula]
         public string Direccion { get; set; }
 
-        public DateTime? FechaCreacion { get; set; }
+        public DateTime FechaCreacion { get; set; }
 
-        //public List<Cartas> Cartas { get; set; }
+        public List<int> RifasIds { get; set; }
 
-        public List<RPCP> RPCP { get; set; }
+        public List<int> CartasIds { get; set; }
     }
 }

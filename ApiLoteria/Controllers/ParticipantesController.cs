@@ -1,18 +1,23 @@
 ﻿using ApiLoteria.Entidades;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ApiLoteria.DTOs;
 
 namespace ApiLoteria.Controllers
 {
     [ApiController]
     [Route("api/participantes")]
+
     public class ParticipantesController: ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
+        private readonly IMapper mapper;
 
-        public ParticipantesController (ApplicationDbContext dbContext)
+        public ParticipantesController (ApplicationDbContext dbContext, IMapper mapper)
         {
             this.dbContext = dbContext;
+            this.mapper = mapper;
         }
 
         [HttpGet]
@@ -23,68 +28,127 @@ namespace ApiLoteria.Controllers
         }
 
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<Participante>> GetById(int id)
+        [HttpGet("{id:int}", Name = "obtenerParticipante")]
+        public async Task<ActionResult<ParticipanteDTOConRifa>> GetById(int id)
         {
-            return await dbContext.Participantes.FirstOrDefaultAsync(x => x.Id == id);
+            var participante = await dbContext.Participantes
+              .Include(participanteDB => participanteDB.RPCP)
+              .ThenInclude(RPCPDB => RPCPDB.Rifa)
+              //.Include(participanteDB => participanteDB.RPCP)
+              //.ThenInclude(RPCPDB => RPCPDB.Cartas)
+              //.Include(cartaDB => cartaDB)
+              .FirstOrDefaultAsync(x => x.Id == id);
 
+            if (participante == null)
+            {
+                return NotFound();
+            }
+            participante.RPCP = participante.RPCP.OrderBy(x => x.Orden).ToList();
+            return mapper.Map<ParticipanteDTOConRifa>(participante);
         }
 
+
         [HttpPost]
-
-        public async Task<ActionResult> Post(Participante participante)
+        public async Task<ActionResult> Post(ParticipanteCreacionDTO participanteCreacionDTO)
         {
-            var existeRifa = await dbContext.Rifas.AnyAsync(x => x.Id == participante.RifaId);
-
-            if (!existeRifa)
+            if ( participanteCreacionDTO.RifasIds == null)
             {
-                return BadRequest($"No existe la rifa con el id: {participante.RifaId} ");
+                return BadRequest("No se puede crear un participante sin rifa.");
             }
 
-            dbContext.Update(participante);
+            var rifasIds = await dbContext.Rifas
+                .Where(rifaBD => participanteCreacionDTO.RifasIds.Contains(rifaBD.Id)).
+                Select(x => x.Id).ToListAsync();
+
+            if (participanteCreacionDTO.RifasIds.Count != rifasIds.Count)
+            {
+                return BadRequest("No existe uno de las rifas enviadas");
+            }
+
+            var participante = mapper.Map<Participante>(participanteCreacionDTO);
+
+            OrdenarPorRifas(participante);
+
+            dbContext.Add(participante);
             await dbContext.SaveChangesAsync();
-            return Ok();
+
+            var  participanteDTO  = mapper.Map<ParticipanteDTO>(participante);
+
+            return CreatedAtRoute("obtenerParticipante", new { id = participante.Id }, participanteDTO);
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(Participante participante, int id)
+        public async Task<ActionResult> Put(ParticipanteCreacionDTO participanteCreacionDTO, int id)
         {
-            var exist = await dbContext.Participantes.AnyAsync(x => x.Id == id);
+            var participanteDB = await dbContext.Participantes
+                  .Include(x => x.RPCP)
+                  .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (!exist)
+            if (participanteDB == null)
             {
-                return NotFound(" El participante especificado no existe. ");
+                return NotFound();
             }
 
-            if (participante.Id != id)
-            {
-                return BadRequest("El id del participante no coincide con el establecido en la url. ");
-            }
+            participanteDB  = mapper.Map(participanteCreacionDTO, participanteDB);
 
-            dbContext.Update(participante);
+            OrdenarPorRifas(participanteDB);
+
             await dbContext.SaveChangesAsync();
-            return Ok();
 
+            return NoContent();
         }
 
         [HttpDelete("{id:int}")]
-
         public async Task<ActionResult> Delete(int id)
         {
             var exist = await dbContext.Participantes.AnyAsync(x => x.Id == id);
             if (!exist)
             {
-                return NotFound("El participante no fue encontrado");
+                return NotFound("El recurso no se ha encontrado");
             }
-            dbContext.Remove(new Participante
-            {
-                Id = id
 
-            });
+            dbContext.Remove(new Participante { Id = id });
             await dbContext.SaveChangesAsync();
             return Ok();
 
         }
+        private void OrdenarPorRifas( Participante participante)
+        {
+            if (participante.RPCP != null)
+            {
+                for (int i = 0; i < participante.RPCP.Count;i++) 
+                {
+                    participante.RPCP[i].Orden = i;
+                }
+            }
+        }
 
+        //[HttpPatch("{id:int}")]
+        //public async Task<ActionResult> Patch(int id,
+             //JsonPatchDocument<ParticipantePatchDTO> patchDocument)
+        //{
+            //if (patchDocument == null) { return BadRequest(); }
+
+            //var participanteDB = await dbContext.Participantes.FirstOrDefaultAsync(x => x.Id == id);
+
+            //if (participanteDB == null) { return NotFound(); }
+
+            //var participanteDB = mapper.Map<ParticipantePatchDTO>(participanteDB);
+
+            //patchDocument.ApplyTo(participanteDB);
+
+            //var isValid = TryValidateModel(participanteDB);
+
+            //if (!isValid)
+            //{
+               // return BadRequest(ModelState);
+            //}
+
+            //mapper.Map(participanteDB, participanteDB);
+
+            //await dbContext.SaveChangesAsync();
+            //return NoContent();
+        //}
     }
+
 }
