@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using ApiLoteria.Entidades;
 using ApiLoteria.DTOs;
-using ApiLoteria.Migrations;
 
 namespace ApiLoteria.Utilidades
 {
