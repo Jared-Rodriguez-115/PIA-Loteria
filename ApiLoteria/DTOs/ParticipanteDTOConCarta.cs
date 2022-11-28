@@ -2,7 +2,7 @@
 {
     public class ParticipanteDTOConCarta: ParticipanteDTO
     {
-        public List<CartaDTO> Cartas { get; set; }
+        public List<CartaDTO> Carta { get; set; }
     }
 }
 

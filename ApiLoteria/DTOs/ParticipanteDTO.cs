@@ -19,6 +19,7 @@ namespace ApiLoteria.DTOs
 
         public DateTime FechaCreacion { get; set; }
 
-        public List<CartaDTO> Carta { get; set; }
+        //public List<CartaDTO> Cartas { get; set; }
+
     }
 }

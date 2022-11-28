@@ -15,7 +15,8 @@ namespace ApiLoteria
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<RPCP>()
-                .HasKey(rc => new { rc.RifaId, rc.ParticipanteId, rc.CartasId, rc.PremioId });
+           .HasKey(rc => new { rc.RifaId, rc.ParticipanteId, rc.CartasId, rc.PremioId, rc.Orden });
+               
         }
 
         public DbSet<Rifa> Rifas { get; set; }

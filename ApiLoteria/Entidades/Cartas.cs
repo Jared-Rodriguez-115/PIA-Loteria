@@ -17,7 +17,7 @@ namespace ApiLoteria.Entidades
 
         public List<RPCP> RPCP { get; set; }
 
-        //public Participante Participante { get; set; }
+        //public Participante Participante { get; set; } 
 
         //public string UsuarioId { get; set; }
 

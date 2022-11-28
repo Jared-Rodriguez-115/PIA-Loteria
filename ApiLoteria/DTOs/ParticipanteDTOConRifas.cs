@@ -1,6 +1,6 @@
 ﻿namespace ApiLoteria.DTOs
 {
-    public class ParticipanteDTOConRifa: ParticipanteDTO
+    public class ParticipanteDTOConRifas: ParticipanteDTO
     {
         public List<GetRifaDTO> Rifas { get; set; }
 

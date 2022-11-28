@@ -1,4 +1,6 @@
-﻿namespace ApiLoteria.Entidades
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ApiLoteria.Entidades
 {
     public class RPCP
     {

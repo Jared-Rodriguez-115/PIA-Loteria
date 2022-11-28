@@ -12,5 +12,8 @@ namespace ApiLoteria.DTOs
         [PrimeraLetraMayuscula]
         public string Nombre { get; set; }
 
+        [Required]
+        public int NumPrem { get; set; }
+
     }
 }

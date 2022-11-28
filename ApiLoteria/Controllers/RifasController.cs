@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using ApiLoteria.DTOs;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace ApiLoteria.Controllers
 {
@@ -36,15 +36,16 @@ namespace ApiLoteria.Controllers
         //[HttpGet("{id:int}")]
         //public async Task<ActionResult<GetRifaDTO>> Get(int id)
         //{
-            //var rifa = await dbContext.Rifas.FirstOrDefaultAsync(rifaBD => rifaBD.Id == id);
+        //var rifa = await dbContext.Rifas.FirstOrDefaultAsync(rifaBD => rifaBD.Id == id);
 
-            //if (rifa == null)
-            //{
-                //return NotFound("No hemos encontrado esa rifa");
-            //}
-            //return mapper.Map<GetRifaDTO>(rifa);
+        //if (rifa == null)
+        //{
+        //return NotFound("No hemos encontrado esa rifa");
+        //}
+        //return mapper.Map<GetRifaDTO>(rifa);
 
         //}
+
 
         [HttpGet("{id:int}", Name = "obtenerrifa")] //{id}/rifa
         public async Task<ActionResult<RifaDTOConCartas>> Get(int id)

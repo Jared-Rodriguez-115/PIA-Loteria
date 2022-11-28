@@ -7,7 +7,7 @@ using ApiLoteria.DTOs;
 namespace ApiLoteria.Controllers
 {
     [ApiController]
-    [Route("api/participantes")]
+    [Route("participantes")]
 
     public class ParticipantesController: ControllerBase
     {
@@ -29,14 +29,12 @@ namespace ApiLoteria.Controllers
 
 
         [HttpGet("{id:int}", Name = "obtenerParticipante")]
-        public async Task<ActionResult<ParticipanteDTOConRifa>> GetById(int id)
+        public async Task<ActionResult<ParticipanteDTOConRifas>> GetById(int id)
         {
             var participante = await dbContext.Participantes
               .Include(participanteDB => participanteDB.RPCP)
               .ThenInclude(RPCPDB => RPCPDB.Rifa)
-              //.Include(participanteDB => participanteDB.RPCP)
-              //.ThenInclude(RPCPDB => RPCPDB.Cartas)
-              //.Include(cartaDB => cartaDB)
+              .Include(cartaDB => cartaDB.Cartas)
               .FirstOrDefaultAsync(x => x.Id == id);
 
             if (participante == null)
@@ -44,7 +42,7 @@ namespace ApiLoteria.Controllers
                 return NotFound();
             }
             participante.RPCP = participante.RPCP.OrderBy(x => x.Orden).ToList();
-            return mapper.Map<ParticipanteDTOConRifa>(participante);
+            return mapper.Map<ParticipanteDTOConRifas>(participante);
         }
 
 
@@ -65,14 +63,28 @@ namespace ApiLoteria.Controllers
                 return BadRequest("No existe uno de las rifas enviadas");
             }
 
+            if (participanteCreacionDTO.CartasIds == null)
+            {
+                return BadRequest("No se puede crear un participante sin carta.");
+            }
+                                                         
+            var cartasIds = await dbContext.Cartas 
+                .Where(cartaBD => participanteCreacionDTO.CartasIds.Contains(cartaBD.Id)).
+                Select(x => x.Id).ToListAsync();
+
+            if (participanteCreacionDTO.CartasIds.Count != cartasIds.Count)
+            {
+                return BadRequest("No existe uno de las cartas enviadas");
+            }
+
             var participante = mapper.Map<Participante>(participanteCreacionDTO);
 
-            OrdenarPorRifas(participante);
+            //OrdenarPorRifas(participante);
 
             dbContext.Add(participante);
             await dbContext.SaveChangesAsync();
 
-            var  participanteDTO  = mapper.Map<ParticipanteDTO>(participante);
+            var  participanteDTO = mapper.Map<ParticipanteDTO>(participante);
 
             return CreatedAtRoute("obtenerParticipante", new { id = participante.Id }, participanteDTO);
         }
@@ -112,7 +124,7 @@ namespace ApiLoteria.Controllers
             return Ok();
 
         }
-        private void OrdenarPorRifas( Participante participante)
+        private void OrdenarPorRifas(Participante participante)
         {
             if (participante.RPCP != null)
             {

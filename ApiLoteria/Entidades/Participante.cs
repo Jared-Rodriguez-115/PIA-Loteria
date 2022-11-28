@@ -17,9 +17,9 @@ namespace ApiLoteria.Entidades
         [PrimeraLetraMayuscula]
         public string Direccion { get; set; }
 
-        public DateTime? FechaCreacion { get; set; }
+        public DateTime FechaCreacion { get; set; }
 
-        //public List<Cartas> Cartas { get; set; }
+        public List<Cartas> Cartas { get; set; }
 
         public List<RPCP> RPCP { get; set; }
     }
